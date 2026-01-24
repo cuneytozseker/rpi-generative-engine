@@ -20,32 +20,38 @@ class GalleryUploader:
         dest_dir = self.gallery_dir / date_str
         dest_dir.mkdir(parents=True, exist_ok=True)
 
-        # Use a unique timestamp for the filenames to prevent overwriting
+        # Create archive directory for historical records
+        archive_dir = dest_dir / "archive"
+        archive_dir.mkdir(exist_ok=True)
+
+        # Unique timestamped paths for the archive
         time_str = datetime.now().strftime("%H%M%S")
-        img_dest = dest_dir / f"period_{period}_{time_str}.png"
-        code_dest = dest_dir / f"period_{period}_{time_str}.py"
-        json_dest = dest_dir / f"period_{period}_{time_str}.json"
+        img_archive = archive_dir / f"period_{period}_{time_str}.png"
+        code_archive = archive_dir / f"period_{period}_{time_str}.py"
+        json_archive = archive_dir / f"period_{period}_{time_str}.json"
 
-        # Copy files to unique timestamped paths
-        shutil.copy(image, img_dest)
-        code_dest.write_text(code)
+        # Copy files to archive
+        shutil.copy(image, img_archive)
+        code_archive.write_text(code)
 
-        # Also create a "latest" version for the web frontend to find easily
+        # Create/Update "latest" version for the web frontend (this is what Vercel shows)
         latest_img = dest_dir / f"period_{period}.png"
         latest_code = dest_dir / f"period_{period}.py"
         latest_json = dest_dir / f"period_{period}.json"
-
+        
         shutil.copy(image, latest_img)
         latest_code.write_text(code)
 
-        # Create metadata with timestamp for frontend sorting
+        # Create metadata with timestamp
         import json
         metadata_with_ts = {
             **metadata,
             "timestamp": datetime.now().isoformat()
         }
         json_content = json.dumps(metadata_with_ts, indent=2)
-        json_dest.write_text(json_content)
+        
+        # Save to both locations
+        json_archive.write_text(json_content)
         latest_json.write_text(json_content)
 
         # Git operations
