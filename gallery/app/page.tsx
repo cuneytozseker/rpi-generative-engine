@@ -12,7 +12,7 @@ interface Artwork {
 }
 
 async function getArtworks(): Promise<Artwork[]> {
-  const galleryPath = path.join(process.cwd(), '..', 'public', 'gallery');
+  const galleryPath = path.join(process.cwd(), 'public', 'gallery');
   
   if (!fs.existsSync(galleryPath)) {
     return [];
