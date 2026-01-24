@@ -14,15 +14,6 @@ interface Artwork {
 
 async function getArtworks(): Promise<Artwork[]> {
   const galleryPath = path.join(process.cwd(), 'public', 'gallery');
-  console.log('=== GALLERY DEBUG ===');
-  console.log('CWD:', process.cwd());
-  console.log('Gallery path:', galleryPath);
-  console.log('Path exists:', fs.existsSync(galleryPath));
-
-  if (fs.existsSync(galleryPath)) {
-    const dates = fs.readdirSync(galleryPath);
-    console.log('Date folders found:', dates);
-  }
   
   if (!fs.existsSync(galleryPath)) {
     return [];
@@ -66,77 +57,78 @@ export default async function Gallery() {
       <div className="p-8 pt-20">
         <div className="max-w-7xl mx-auto">
           <header className="mb-12">
-          <h1 className="text-5xl font-bold mb-4">Generative Art Engine</h1>
-          <p className="text-zinc-400 text-lg">
-            Autonomous artwork generated every 6 hours by AI agents
-          </p>
-          <div className="mt-4 text-sm text-zinc-500">
-            <span>{artworks.length} artworks generated</span>
-          </div>
-        </header>
+            <h1 className="text-5xl font-bold mb-4">Generative Art Engine</h1>
+            <p className="text-zinc-400 text-lg">
+              Autonomous artwork generated every 6 hours by AI agents
+            </p>
+            <div className="mt-4 text-sm text-zinc-500">
+              <span>{artworks.length} artworks generated</span>
+            </div>
+          </header>
 
-        {artworks.length === 0 ? (
-          <div className="text-center py-20 text-zinc-500">
-            <p className="text-xl">No artworks yet. First generation starts soon...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artworks.map((art) => (
-              <div 
-                key={`${art.date}-${art.period}`}
-                className="bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden hover:border-zinc-500 transition-all"
-              >
-                <div className="relative aspect-[5/4] bg-zinc-950">
-                  <Image
-                    src={`/gallery/${art.date}/period_${art.period}.png`}
-                    alt={art.theme}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-
-                <div className="p-6">
-                  <div className="text-xs text-zinc-500 mb-2">
-                    {art.date} • Period {art.period}
+          {artworks.length === 0 ? (
+            <div className="text-center py-20 text-zinc-500">
+              <p className="text-xl">No artworks yet. First generation starts soon...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {artworks.map((art) => (
+                <div 
+                  key={`${art.date}-${art.period}`}
+                  className="bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden hover:border-zinc-500 transition-all"
+                >
+                  <div className="relative aspect-[5/4] bg-zinc-950">
+                    <Image
+                      src={`/gallery/${art.date}/period_${art.period}.png`}
+                      alt={art.theme}
+                      fill
+                      className="object-contain"
+                    />
                   </div>
-                  
-                  <h3 className="text-lg font-semibold mb-3">
-                    {art.theme}
-                  </h3>
 
-                  {art.score && (
-                    <div className="text-sm text-zinc-400 mb-2">
-                      Score: {art.score}/10
+                  <div className="p-6">
+                    <div className="text-xs text-zinc-500 mb-2">
+                      {art.date} • Period {art.period}
                     </div>
-                  )}
+                    
+                    <h3 className="text-lg font-semibold mb-3">
+                      {art.theme}
+                    </h3>
 
-                  {art.reasoning && (
-                    <p className="text-sm text-zinc-500 mb-4 line-clamp-3">
-                      {art.reasoning}
-                    </p>
-                  )}
+                    {art.score && (
+                      <div className="text-sm text-zinc-400 mb-2">
+                        Score: {art.score}/10
+                      </div>
+                    )}
 
-                  <div className="flex gap-4 text-sm">
-                    <a 
-                      href={`/gallery/${art.date}/period_${art.period}.py`}
-                      className="text-blue-400 hover:text-blue-300"
-                      download
-                    >
-                      View Code
-                    </a>
-                    <a 
-                      href={`/gallery/${art.date}/period_${art.period}.png`}
-                      className="text-blue-400 hover:text-blue-300"
-                      download
-                    >
-                      Download
-                    </a>
+                    {art.reasoning && (
+                      <p className="text-sm text-zinc-500 mb-4 line-clamp-3">
+                        {art.reasoning}
+                      </p>
+                    )}
+
+                    <div className="flex gap-4 text-sm">
+                      <a 
+                        href={`/gallery/${art.date}/period_${art.period}.py`}
+                        className="text-blue-400 hover:text-blue-300"
+                        download
+                      >
+                        View Code
+                      </a>
+                      <a 
+                        href={`/gallery/${art.date}/period_${art.period}.png`}
+                        className="text-blue-400 hover:text-blue-300"
+                        download
+                      >
+                        Download
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
