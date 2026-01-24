@@ -8,52 +8,45 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # or your choice
+ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Radial Symmetry with Breaking Points
+# Generative Code: Radial Symmetry with Breaking Points
+
 center_x, center_y = width / 2, height / 2
-num_segments = 12  # Number of radial segments
-radius = min(width, height) / 2 * 0.9 # Radius of the overall pattern
+num_segments = 24  # Number of radial segments
+radius = 350
+line_width = 3
+ctx.set_line_width(line_width)
 
 for i in range(num_segments):
     angle = 2 * math.pi * i / num_segments
     x1 = center_x + radius * math.cos(angle)
     y1 = center_y + radius * math.sin(angle)
 
-    # Introduce variation: probability of line breaking
-    break_probability = 0.25
-    if random.random() > break_probability:
-        ctx.set_source_rgb(1, 1, 1) # White lines
-        ctx.set_line_width(2)
-        ctx.move_to(center_x, center_y)
-        ctx.line_to(x1, y1)
-        ctx.stroke()
+    # Introduce variation (breaking points)
+    break_chance = 0.2 #Probability that a line will terminate early
+    break_distance = random.uniform(0.2, 0.8) * radius #Distance from center where line will break
 
-    # Smaller circles along the lines with slight offset
-    num_circles = 5
-    for j in range(num_circles):
-        t = (j + 1) / (num_circles + 1)  # Parameter for position along the line
-        circle_x = center_x + t * (x1 - center_x)
-        circle_y = center_y + t * (y1 - center_y)
-        circle_radius = radius * 0.03 * (0.8 + 0.2 * random.random())  # Varying circle radius
+    if random.random() > break_chance:
+        x2 = center_x + radius * math.cos(angle)
+        y2 = center_y + radius * math.sin(angle)
+    else:
+        x2 = center_x + break_distance * math.cos(angle)
+        y2 = center_y + break_distance * math.sin(angle)
+        
+    ctx.set_source_rgb(1, 1, 1)
+    ctx.move_to(center_x, center_y)
+    ctx.line_to(x2, y2)
+    ctx.stroke()
 
-        # Introduce offset based on segment number
-        offset_angle = angle + math.pi / (num_segments * 4) * (i % 4 - 1.5) # Small angular offset
-        offset_x = circle_radius * 0.5 * math.cos(offset_angle)
-        offset_y = circle_radius * 0.5 * math.sin(offset_angle)
-        circle_x += offset_x
-        circle_y += offset_y
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.arc(circle_x, circle_y, circle_radius, 0, 2 * math.pi)
-        ctx.fill()
+    # Small circle at endpoints
+    ctx.set_source_rgb(1, 0, 0) #small red circles
+    ctx.arc(x2, y2, 2, 0, 2 * math.pi)
+    ctx.fill()
 
-    # Add small black squares at intersections if adjacent lines present
-
-    angle_next = 2 * math.pi * (i + 1) / num_segments
-
-    if random.random() > break_probability:
-        ctx.set_source_rgb(0, 0, 0)
-        square_size = radius * 0.01
-        ctx.rectangle(x1 - square_size/2, y1- square_size/2, square_size, square_size)
-        ctx.fill()
+# Inner circle
+ctx.set_source_rgb(1, 1, 1)
+ctx.set_line_width(1)
+ctx.arc(center_x, center_y, 50, 0, 2 * math.pi)
+ctx.stroke()

@@ -8,33 +8,32 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # Black background
+ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative code: Wave interference
+# Generative Code: Wave Interference
 
-num_waves = 20
+num_waves = 15
 amplitude = 50
-wavelength_base = 100
-phase_shift_increment = math.pi / 10
-y_offset = height / 2
-x_offset = width / 2
+wavelength = 100
+phase_shift_increment = 0.2
 line_width = 2
 
 ctx.set_line_width(line_width)
+ctx.set_source_rgb(1, 1, 1)
 
 for i in range(num_waves):
-    wavelength = wavelength_base + i * 5
     phase_shift = i * phase_shift_increment
-    
-    ctx.set_source_rgb(1, 1, 1) # White lines
-    
-    path_length = width * 2 # Extend path beyond the visible area
-    
-    ctx.move_to(-width/2, y_offset + amplitude * math.sin(phase_shift)) # Start slightly off screen
-
-    for x in range(-int(width/2), path_length): # Extend rendering of lines
-        y = y_offset + amplitude * math.sin(x / wavelength * 2 * math.pi + phase_shift)
-        ctx.line_to(x, y)
-    
+    for x in range(0, width):
+        y = height / 2 + amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift)
+        if x == 0:
+            ctx.move_to(x, y)
+        else:
+            ctx.line_to(x, y)
     ctx.stroke()
+
+    # Invert color for every other wave for higher contrast
+    if i % 2 == 0:
+        ctx.set_source_rgb(1, 1, 1)
+    else:
+         ctx.set_source_rgb(0, 0, 0) # or another contrasting color

@@ -8,73 +8,52 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0.95, 0.95, 0.95)  # Light grey background
 ctx.paint()
 
 # Grid parameters
-grid_size = 20
-horizontal_modules = width // grid_size
-vertical_modules = height // grid_size
+grid_size = 80
+grid_rows = height // grid_size
+grid_cols = width // grid_size
 
 # Color palette
-white = (1, 1, 1)
-black = (0, 0, 0)
-gray = (0.5, 0.5, 0.5)
+black = (0.1, 0.1, 0.1)
+red = (0.8, 0.2, 0.2)
+blue = (0.2, 0.4, 0.8)
+colors = [black, red, blue]  # Limited palette
 
-# Function to draw a modular character (example: 'H')
-def draw_module_H(x, y, size, color):
-    ctx.set_source_rgb(*color)
-    ctx.set_line_width(size / 5) # Consistent stroke weight
-    
-    # Vertical lines
-    ctx.move_to(x + size / 5, y + size / 5)
-    ctx.line_to(x + size / 5, y + size * 4 / 5)
-    ctx.stroke()
-    
-    ctx.move_to(x + size * 4 / 5, y + size / 5)
-    ctx.line_to(x + size * 4 / 5, y + size * 4 / 5)
-    ctx.stroke()
-    
-    # Horizontal line
-    ctx.move_to(x + size / 5, y + size / 2)
-    ctx.line_to(x + size * 4 / 5, y + size / 2)
-    ctx.stroke()
+# Modular letter components
+def draw_module(ctx, x, y, size, module_type):
+    ctx.set_line_width(size / 8)
+    ctx.set_source_rgb(*random.choice(colors))
 
+    if module_type == 0:  # Vertical line
+        ctx.move_to(x + size / 2, y)
+        ctx.line_to(x + size / 2, y + size)
+        ctx.stroke()
+    elif module_type == 1:  # Horizontal line
+        ctx.move_to(x, y + size / 2)
+        ctx.line_to(x + size, y + size / 2)
+        ctx.stroke()
+    elif module_type == 2:  # Diagonal line (top-left to bottom-right)
+        ctx.move_to(x, y)
+        ctx.line_to(x + size, y + size)
+        ctx.stroke()
+    elif module_type == 3: # Diagonal line (top-right to bottom-left)
+        ctx.move_to(x + size, y)
+        ctx.line_to(x, y + size)
+        ctx.stroke()
+    elif module_type == 4: # Circle segment (top left)
+        ctx.arc(x + size/2, y + size/2, size/2, math.pi, 1.5*math.pi)
+        ctx.stroke()
+    elif module_type == 5: # Rectangle
+         ctx.rectangle(x + size/4, y + size/4, size/2, size/2)
+         ctx.fill()
 
-# Function to draw a modular character (example: 'O')
-def draw_module_O(x, y, size, color):
-    ctx.set_source_rgb(*color)
-    ctx.set_line_width(size / 5) # Consistent stroke weight
-    ctx.arc(x + size/2, y + size/2, size * 2 / 5, 0, 2 * math.pi)
-    ctx.stroke()
-
-
-# Function to draw a modular character (example: 'X')
-def draw_module_X(x, y, size, color):
-    ctx.set_source_rgb(*color)
-    ctx.set_line_width(size / 5) # Consistent stroke weight
-    ctx.move_to(x + size / 5, y + size / 5)
-    ctx.line_to(x + size * 4 / 5, y + size * 4 / 5)
-    ctx.stroke()
-
-    ctx.move_to(x + size * 4 / 5, y + size / 5)
-    ctx.line_to(x + size / 5, y + size * 4 / 5)
-    ctx.stroke()
-
-
-
-# Generate typography pattern
-random.seed(42) # for deterministic results
-for i in range(horizontal_modules):
-    for j in range(vertical_modules):
-        x = i * grid_size
-        y = j * grid_size
-        
-        # Probabilistic character selection
-        r = random.random()
-        if r < 0.33:
-            draw_module_H(x, y, grid_size, white)
-        elif r < 0.66:
-            draw_module_O(x, y, grid_size, white)
-        else:
-            draw_module_X(x, y, grid_size, white)
+# Generate the "type"
+for row in range(grid_rows):
+    for col in range(grid_cols):
+        x = col * grid_size
+        y = row * grid_size
+        module_type = random.randint(0, 5)  # Random module
+        draw_module(ctx, x, y, grid_size, module_type)

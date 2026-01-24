@@ -15,35 +15,43 @@ ctx.paint()
 phi = (1 + math.sqrt(5)) / 2
 
 # Initial square parameters
-x, y = 100, 100
-size = 600
-depth = 7 # Number of nested squares
+x, y = 50, 50
+size = 700
+min_size = 5
 
-# Color scheme
-color1 = (1, 1, 1)  # White
-color2 = (0.2, 0.2, 0.2) # Dark Gray
+# Iteration parameters
+num_iterations = 12
+scale_factor = 1 / phi
+line_width_reduction = 0.8  # Reduce line width on each iteration
 
-# Recursive function to draw nested squares
-def draw_nested_squares(ctx, x, y, size, depth):
-    if depth <= 0:
-        return
+# Colors
+base_color = (1, 1, 1)  # White
+highlight_color = (0.2, 0.2, 0.2) # Dark gray
 
-    # Alternate colors
-    if depth % 2 == 0:
-        ctx.set_source_rgb(*color1)
-    else:
-        ctx.set_source_rgb(*color2)
-    
+ctx.set_source_rgb(*base_color)
+ctx.set_line_width(5)
+
+for i in range(num_iterations):
     ctx.rectangle(x, y, size, size)
-    ctx.fill()
+    ctx.stroke()
 
-    # Calculate new size and position using golden ratio
-    new_size = size / phi
+    # Calculate next square parameters based on golden ratio
+    new_size = size * scale_factor
     new_x = x + (size - new_size) / 2
     new_y = y + (size - new_size) / 2
 
-    # Recursive call
-    draw_nested_squares(ctx, new_x, new_y, new_size, depth - 1)
+    # Check for early termination to avoid tiny squares
+    if new_size < min_size:
+        break
 
-# Draw the nested squares
-draw_nested_squares(ctx, x, y, size, depth)
+    # Update square parameters
+    x, y, size = new_x, new_y, new_size
+
+    #Reduce line width
+    ctx.set_line_width(ctx.get_line_width() * line_width_reduction)
+
+    #Alternate color for visual interest every 3 steps
+    if i % 3 == 0:
+        ctx.set_source_rgb(*highlight_color)
+    else:
+        ctx.set_source_rgb(*base_color)

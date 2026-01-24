@@ -56,7 +56,7 @@ Then select the BEST ONE and explain your reasoning in detail."""
         
         # Get evaluation
         response = await self.client.messages.create(
-            model="claude-3-haiku-20240307",
+            model="claude-sonnet-4-20250514",
             max_tokens=4096,
             messages=[{"role": "user", "content": content}]
         )

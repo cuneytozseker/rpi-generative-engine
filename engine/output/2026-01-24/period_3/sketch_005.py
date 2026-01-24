@@ -8,34 +8,40 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0.95, 0.95, 0.95)  # Light gray background
 ctx.paint()
 
-# Generative Code: Brutalist Rectangles
+# Generative code: Brutalist Rectangles
 
-grid_size = 50
-rect_variation = 20 # max size variation in each direction
-density = 0.7  # Probability of a rectangle appearing at each grid point
+# Grid parameters
+grid_size = 40
+num_rects_x = width // grid_size
+num_rects_y = height // grid_size
 
-ctx.set_source_rgb(1, 1, 1) # White rectangles
-ctx.set_line_width(2)
+ctx.set_line_width(1)
 
-for x in range(0, width, grid_size):
-    for y in range(0, height, grid_size):
-        if random.random() < density:
-            # Introduce some variation in size and position
-            rect_width = grid_size + random.randint(-rect_variation, rect_variation)
-            rect_height = grid_size + random.randint(-rect_variation, rect_variation)
-            rect_x = x + random.randint(-rect_variation//2, rect_variation//2)
-            rect_y = y + random.randint(-rect_variation//2, rect_variation//2)
+for i in range(num_rects_x):
+    for j in range(num_rects_y):
+        x = i * grid_size
+        y = j * grid_size
 
-            # Ensure rectangles stay within bounds
-            rect_x = max(0, min(rect_x, width - rect_width))
-            rect_y = max(0, min(rect_y, height - rect_height))
+        # Random variations in rectangle size and position
+        width_variation = random.uniform(0.2, 0.8)  # Rectangle width percentage
+        height_variation = random.uniform(0.2, 0.8) # Rectangle height percentage
+        x_offset = random.uniform(-grid_size * 0.1, grid_size * 0.1)  # Slight position shift
+        y_offset = random.uniform(-grid_size * 0.1, grid_size * 0.1)
 
+        rect_width = grid_size * width_variation
+        rect_height = grid_size * height_variation
+
+        rect_x = x + x_offset + (grid_size - rect_width) / 2  # Centering within grid cell
+        rect_y = y + y_offset + (grid_size - rect_height) / 2
+
+        # Probability of rectangle being filled/stroked
+        if random.random() < 0.8:  # 80% probability
+            ctx.set_source_rgb(0, 0, 0)  # Black
             ctx.rectangle(rect_x, rect_y, rect_width, rect_height)
-            
-            if random.random() < 0.2:  # Sometimes fill, sometimes just stroke
-              ctx.fill()
+            if random.random() < 0.7:
+                 ctx.fill()
             else:
-              ctx.stroke()
+                ctx.stroke()
