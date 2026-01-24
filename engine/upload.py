@@ -9,48 +9,67 @@ class GalleryUploader:
     
     def __init__(self):
         self.gallery_dir = GALLERY_DIR
-    
+
     async def post(self, image: Path, code: str, metadata: dict) -> str:
         """Copy artwork to public gallery and push to git"""
-        
+
         date_str = metadata['date']
         period = metadata['period']
-        
+
         # Create directory in public/gallery/YYYY-MM-DD/
         dest_dir = self.gallery_dir / date_str
         dest_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Define destination paths
-        img_dest = dest_dir / f"period_{period}.png"
-        code_dest = dest_dir / f"period_{period}.py"
-        json_dest = dest_dir / f"period_{period}.json"
-        
-        # Copy files
+
+        # Use a unique timestamp for the filenames to prevent overwriting
+        time_str = datetime.now().strftime("%H%M%S")
+        img_dest = dest_dir / f"period_{period}_{time_str}.png"
+        code_dest = dest_dir / f"period_{period}_{time_str}.py"
+        json_dest = dest_dir / f"period_{period}_{time_str}.json"
+
+        # Copy files to unique timestamped paths
         shutil.copy(image, img_dest)
         code_dest.write_text(code)
-        
+
+        # Also create a "latest" version for the web frontend to find easily
+        latest_img = dest_dir / f"period_{period}.png"
+        latest_code = dest_dir / f"period_{period}.py"
+        latest_json = dest_dir / f"period_{period}.json"
+
+        shutil.copy(image, latest_img)
+        latest_code.write_text(code)
+
         # Create metadata with timestamp for frontend sorting
         import json
         metadata_with_ts = {
             **metadata,
             "timestamp": datetime.now().isoformat()
         }
-        json_dest.write_text(json.dumps(metadata_with_ts, indent=2))
-        
+        json_content = json.dumps(metadata_with_ts, indent=2)
+        json_dest.write_text(json_content)
+        latest_json.write_text(json_content)
+
         # Git operations
         try:
-            repo_root = self.gallery_dir.parent.parent
+            # Find repo root by looking for .git folder upwards from GALLERY_DIR
+            repo_root = self.gallery_dir
+            while repo_root != repo_root.parent:
+                if (repo_root / '.git').exists():
+                    break
+                repo_root = repo_root.parent
             
+            # Ensure we pull first
+            subprocess.run(["git", "pull", "--rebase"], cwd=str(repo_root), check=True)
+
             # Add files
             subprocess.run(["git", "add", "."], cwd=str(repo_root), check=True)
-            
+
             # Commit
             commit_msg = f"Gallery Update: {date_str} Period {period}"
             subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(repo_root), check=True)
-            
+
             # Push
             subprocess.run(["git", "push"], cwd=str(repo_root), check=True)
-            
+
             return f"Successfully pushed to GitHub: Period {period}"
         except Exception as e:
             return f"Git error: {str(e)}"

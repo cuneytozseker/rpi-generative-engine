@@ -1,5 +1,6 @@
 from google import genai
 from config.settings import GEMINI_API_KEY
+from agents.inspiration_analyzer import InspirationAnalyzer
 import re
 import asyncio
 
@@ -12,7 +13,7 @@ import math
 import random
 
 # Setup
-width, height = 800, 800
+width, height = 600, 480
 surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
@@ -40,39 +41,71 @@ AESTHETIC GUIDELINES:
 - Systematic repetition with variation
 - Brutalist or minimalist approaches
 
+CRITICAL: Create visually rich, mathematically sophisticated compositions.
+
+AVOID basic patterns:
+- Plain concentric circles without variation
+- Simple uniform grids
+- Single geometric shape repeated identically
+- Flat colors without depth or interaction
+
+INSTEAD aim for:
+- Multiple overlapping layers with transparency
+- Mathematical relationships (fibonacci, golden ratio, harmonics)
+- Gradual transitions and progressive changes
+- Interplay between systematic order and controlled randomness
+- Texture through varied repetition
+- Strategic use of negative space
+- Visual rhythm through modulated spacing/sizing
+
+Draw creative INSPIRATION from reference images (DO NOT copy exactly):
+- Adapt compositional principles, not exact forms
+- Extract color relationships, not exact palettes  
+- Learn from spatial organization, not pixel-by-pixel reproduction
+- Use mathematical/algorithmic approaches that achieve similar visual effects
+
 Be creative but maintain systematic thinking. Each sketch should explore a unique concept.
 """
 
 class GeneratorAgent:
     def __init__(self):
         self.client = genai.Client(api_key=GEMINI_API_KEY)
-        self.model_id = 'gemini-2.0-flash-exp'
+        self.model_id = 'gemini-3-flash-preview'
+        self.analyzer = InspirationAnalyzer()
     
     async def generate_batch(self, n: int, themes: list[str] = None):
         """Generate n sketches"""
         
         if not themes:
             themes = [
-                "Swiss grid with bold geometric shapes",
-                "Concentric circles with systematic offset",
-                "Parametric line pattern with rotation",
-                "Modular typography system",
-                "Wave interference in black and white",
-                "Brutalist composition with rectangles",
-                "Nested squares with golden ratio",
-                "Radial symmetry with breaking points"
+                "Perlin noise flow field with particle trails creating organic movement",
+                "Polar coordinate transformation of Swiss grid with radial distortion",
+                "Voronoi tessellation with gradient color transitions between cells", 
+                "Recursive geometric subdivision using golden ratio proportions",
+                "Moiré interference from two slowly rotating angular grids",
+                "Isometric crystal lattice structure with simulated depth and shadows",
+                "Reaction-diffusion pattern rendered in stark black and white",
+                "Truchet tiles arranged with multi-layer transparency effects",
+                "Penrose tiling with subtle hue shifts across the composition",
+                "Fractal branching structure constrained to geometric forms",
+                "Fibonacci spiral with modulated line weights and spacing",
+                "Lissajous curves with harmonically related frequencies",
+                "Parametric surface projection onto 2D plane with contour lines",
+                "Delaunay triangulation with color-coded triangle areas",
+                "Bezier curve network forming organic yet systematic patterns"
             ]
+        
+        # Get visual inspiration for this batch
+        inspiration_brief = await self.analyzer.get_creative_direction()
         
         sketches = []
         
         for i in range(n):
             theme = themes[i % len(themes)]
             
-            prompt = f"{SYSTEM_PROMPT}\n\nCreate: {theme}\nMake it visually striking and systematic."
+            prompt = f"{SYSTEM_PROMPT}\n\nVISUAL INSPIRATION BRIEF:\n{inspiration_brief}\n\nCreate: {theme}\nMake it visually striking, mathematically sophisticated, and systematic."
             
             try:
-                # The new SDK uses a synchronous-looking call that can be used in async environments
-                # or we can wrap it if needed. For gemini-2.0-flash, simple call works.
                 response = self.client.models.generate_content(
                     model=self.model_id,
                     contents=prompt,
@@ -87,7 +120,6 @@ class GeneratorAgent:
                     'code': code
                 })
                 
-                # Small delay to respect rate limits
                 await asyncio.sleep(2)
             except Exception as e:
                 print(f"Error generating sketch {i}: {e}")

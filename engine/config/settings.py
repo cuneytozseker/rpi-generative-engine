@@ -20,7 +20,7 @@ TEMP_DIR.mkdir(exist_ok=True)
 # Display settings
 DISPLAY_WIDTH = 800
 DISPLAY_HEIGHT = 480
-ARTWORK_SIZE = (800, 800)  # Generated artwork size
+ARTWORK_SIZE = (600, 480)  # Generated artwork size to fit 800x480 display with info panel
 
 # Generation settings
 SKETCHES_PER_PERIOD = 8
