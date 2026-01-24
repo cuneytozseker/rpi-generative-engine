@@ -8,43 +8,30 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # Black background
+ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
 # Golden Ratio
 phi = (1 + math.sqrt(5)) / 2
 
-# Initial square size
-side = 600
-x = (width - side) / 2
-y = (height - side) / 2
-
-# Number of iterations
-iterations = 8
-
-# Colors
-color_bg = (0, 0, 0)
-color_fg = (1, 1, 1)
+# Initial square
+x, y = 100, 100
+size = 600
+num_iterations = 7
 
 ctx.set_line_width(2)
 
-
-def draw_nested_squares(ctx, x, y, side, iterations, depth=0):
-    if depth >= iterations:
-        return
-
-    # Current square
-    ctx.set_source_rgb(*color_fg)
-    ctx.rectangle(x, y, side, side)
+for i in range(num_iterations):
+    # Draw the square
+    ctx.set_source_rgb(1, 1, 1) # White squares
+    ctx.rectangle(x, y, size, size)
     ctx.stroke()
 
-    # Calculate inner square size and position based on golden ratio
-    inner_side = side / phi
-    inner_x = x + (side - inner_side) / 2
-    inner_y = y + (side - inner_side) / 2
+    # Calculate the new square dimensions and position using the golden ratio
+    new_size = size / phi
+    new_x = x + (size - new_size) / 2
+    new_y = y + (size - new_size) / 2
 
-    # Recursive call
-    draw_nested_squares(ctx, inner_x, inner_y, inner_side, iterations, depth + 1)
-
-# Start drawing
-draw_nested_squares(ctx, x, y, side, iterations)
+    # Update variables for the next iteration
+    x, y = new_x, new_y
+    size = new_size

@@ -8,42 +8,36 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # or your choice
+ctx.set_source_rgb(0, 0, 0)  # Black background
 ctx.paint()
 
-# Generative Code: Wave Interference
+# Wave parameters
+num_waves = 10
+amplitude = 50
+wavelength_min = 50
+wavelength_max = 200
+phase_shift_x = 0
+phase_shift_y = 0
 
-def draw_wave(ctx, x_offset, y_offset, amplitude, frequency, phase, color):
-    ctx.set_source_rgb(*color)
-    ctx.set_line_width(2)
-    ctx.move_to(0, y_offset + amplitude * math.sin(frequency * 0 + phase))
+# Drawing waves
+ctx.set_source_rgb(1, 1, 1)  # White lines
+ctx.set_line_width(2)
 
+for i in range(num_waves):
+    wavelength = random.uniform(wavelength_min, wavelength_max)
+    phase_shift_x = random.uniform(0, 2*math.pi) # Introduce some variety in the phases.
+    phase_shift_y = random.uniform(0, 2*math.pi)
+
+    # Horizontal Waves
+    ctx.move_to(0, i * (height / num_waves))
     for x in range(width):
-        y = y_offset + amplitude * math.sin(frequency * x + phase)
+        y = i * (height / num_waves) + amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift_x)
         ctx.line_to(x, y)
-
     ctx.stroke()
 
-
-num_waves = 10
-amplitude = 30
-frequency_base = 0.01
-phase_increment = math.pi / 4
-y_spacing = height / (num_waves + 1)
-
-for i in range(num_waves):
-    y_offset = (i + 1) * y_spacing
-    frequency = frequency_base + i * 0.002  # Vary frequency slightly
-    phase = i * phase_increment
-    color = (1, 1, 1)  # White
-    draw_wave(ctx, 0, y_offset, amplitude, frequency, phase, color)
-
-# Second wave set, inverted
-
-for i in range(num_waves):
-    y_offset = (i + 1) * y_spacing
-    frequency = frequency_base + i * 0.002 # Vary frequency slightly
-    phase = i * phase_increment
-    color = (0, 0, 0) # Black
-    draw_wave(ctx, 0, y_offset, amplitude, frequency, -phase, color) # Invert the phase
-
+    # Vertical Waves - more subtle
+    ctx.move_to(i * (width/num_waves), 0)
+    for y in range(height):
+        x = i*(width/num_waves) + amplitude * 0.5 * math.sin(2 * math.pi * y/wavelength + phase_shift_y)  # Lower amplitude
+        ctx.line_to(x, y)
+    ctx.stroke()

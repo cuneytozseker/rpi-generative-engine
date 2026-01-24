@@ -103,7 +103,12 @@ class DisplayManager:
         return lines
     
     def _update_display(self):
-        """Show image on TFT using feh"""
+        """Show image on TFT using fbi (framebuffer)"""
+        # -d /dev/fb0: use the first framebuffer
+        # -T 1: use the first virtual console
+        # -noverbose: hide status bar
+        # -a: autozoom
+        # --noverbose is not always supported, use -q for quiet
         subprocess.run([
-            'DISPLAY=:0 feh --fullscreen --hide-pointer --zoom fill ' + str(self.display_image)
+            f"sudo fbi -d /dev/fb0 -T 1 -noverbose -a {self.display_image}"
         ], shell=True)

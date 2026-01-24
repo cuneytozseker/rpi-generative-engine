@@ -11,34 +11,63 @@ ctx = cairo.Context(surface)
 ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative code: Brutalist rectangles
+# Grid parameters
+grid_size = 20
+grid_rows = height // grid_size
+grid_cols = width // grid_size
 
-rect_count = 20  # Number of rectangles
-min_size = 20
-max_size = 200
-padding = 20
+# Rectangle parameters
+max_rect_size = grid_size * 4
+min_rect_size = grid_size
 
-ctx.set_source_rgb(1, 1, 1)  # White rectangles
+# Color palette
+white = (1, 1, 1)
+gray = (0.5, 0.5, 0.5)
 
-for i in range(rect_count):
-    x = random.randint(padding, width - padding)
-    y = random.randint(padding, height - padding)
-    w = random.randint(min_size, max_size)
-    h = random.randint(min_size, max_size)
+ctx.set_line_width(1)
 
-    # Ensure rectangle stays within bounds
-    x = max(padding, min(x, width - w - padding))
-    y = max(padding, min(y, height - h - padding))
+for row in range(grid_rows):
+    for col in range(grid_cols):
+        # Chance to draw rectangle
+        if random.random() < 0.3:  # density of rectangles
+            x = col * grid_size
+            y = row * grid_size
 
-    ctx.rectangle(x, y, w, h)
+            # Random width and height
+            rect_width = random.randint(min_rect_size, max_rect_size)
+            rect_height = random.randint(min_rect_size, max_rect_size)
 
-    if random.random() < 0.3: # Randomly fill some rectangles
-        ctx.fill_preserve()
-        ctx.set_source_rgb(0,0,0)
-        ctx.set_line_width(3)
-        ctx.stroke()
-        ctx.set_source_rgb(1,1,1)
+            # Adjust for grid boundaries
+            if x + rect_width > width:
+                rect_width = width - x
+            if y + rect_height > height:
+                rect_height = height - y
 
-    else:
-        ctx.set_line_width(3)
-        ctx.stroke()
+            # Color selection
+            if random.random() < 0.7:
+                ctx.set_source_rgb(*white)
+            else:
+                ctx.set_source_rgb(*gray)
+
+            # Draw rectangle
+            ctx.rectangle(x, y, rect_width, rect_height)
+            ctx.fill()
+
+        # Chance to draw outline
+        elif random.random() < 0.1:
+            x = col * grid_size
+            y = row * grid_size
+
+            # Random width and height (smaller outlines)
+            rect_width = random.randint(grid_size, grid_size * 2)
+            rect_height = random.randint(grid_size, grid_size * 2)
+
+             # Adjust for grid boundaries
+            if x + rect_width > width:
+                rect_width = width - x
+            if y + rect_height > height:
+                rect_height = height - y
+
+            ctx.set_source_rgb(*white)  # White outlines
+            ctx.rectangle(x, y, rect_width, rect_height)
+            ctx.stroke()
