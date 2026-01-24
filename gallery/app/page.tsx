@@ -13,6 +13,15 @@ interface Artwork {
 
 async function getArtworks(): Promise<Artwork[]> {
   const galleryPath = path.join(process.cwd(), 'public', 'gallery');
+  console.log('=== GALLERY DEBUG ===');
+  console.log('CWD:', process.cwd());
+  console.log('Gallery path:', galleryPath);
+  console.log('Path exists:', fs.existsSync(galleryPath));
+
+  if (fs.existsSync(galleryPath)) {
+    const dates = fs.readdirSync(galleryPath);
+    console.log('Date folders found:', dates);
+  }
   
   if (!fs.existsSync(galleryPath)) {
     return [];
