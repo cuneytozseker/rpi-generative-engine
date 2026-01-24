@@ -11,47 +11,44 @@ ctx = cairo.Context(surface)
 ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative Code: Radial Symmetry with Breaking Points
+# Generative code: Radial Symmetry with Breaking Points
 
 center_x, center_y = width / 2, height / 2
-num_segments = 24  # Number of radial segments
+num_segments = 12  # Number of symmetrical segments
 radius = 350
 line_width = 3
-
 ctx.set_line_width(line_width)
 
+def draw_segment(angle_start, angle_end, offset):
+    # Calculate start and end points of the segment
+    x1 = center_x + radius * math.cos(angle_start + offset)
+    y1 = center_y + radius * math.sin(angle_start + offset)
+    x2 = center_x + radius * math.cos(angle_end + offset)
+    y2 = center_y + radius * math.sin(angle_end + offset)
+
+    # Draw a line segment
+    ctx.move_to(x1, y1)
+    ctx.line_to(x2, y2)
+    ctx.stroke()
+
+ctx.set_source_rgb(1, 1, 1)
+
+angle_increment = 2 * math.pi / num_segments
+
 for i in range(num_segments):
-    angle = 2 * math.pi * i / num_segments
-    x1 = center_x + radius * math.cos(angle)
-    y1 = center_y + radius * math.sin(angle)
+    angle_start = i * angle_increment
+    angle_end = (i + 1) * angle_increment
 
-    # Add some randomness to breaking points
-    break_chance = 0.2  # Chance for a segment to be broken
+    # Introduce variation: Random offset to create breaking points
+    offset = random.uniform(-angle_increment/4, angle_increment/4)
 
-    ctx.set_source_rgb(1, 1, 1) # White
+    draw_segment(angle_start, angle_end, offset)
 
-    ctx.move_to(center_x, center_y)
-    ctx.line_to(x1, y1)
+    # Add small inner circles with some probability
+    if random.random() < 0.3:
+        inner_radius = radius * 0.3
+        circle_x = center_x + inner_radius * math.cos(angle_start + angle_increment/2 + offset)
+        circle_y = center_y + inner_radius * math.sin(angle_start + angle_increment/2 + offset)
 
-    if random.random() < break_chance:
-        # Intentionally break the line slightly
-        break_distance = 5 + random.random() * 10 # Random break distance
-        break_angle = angle + (random.random() - 0.5) * 0.1  # Small random angle offset
-        break_x = center_x + (radius - break_distance) * math.cos(break_angle)
-        break_y = center_y + (radius - break_distance) * math.sin(break_angle)
-
-        ctx.line_to(break_x, break_y)
-        ctx.stroke()  # Draw partial line
-        
-        # Draw a small white rectangle at the point
-        rect_size = 2
-        ctx.rectangle(break_x - rect_size/2, break_y - rect_size/2, rect_size, rect_size)
+        ctx.arc(circle_x, circle_y, 5, 0, 2 * math.pi)
         ctx.fill()
-
-
-        # Start a new line from the break point to the original target
-        ctx.move_to(break_x, break_y)
-        ctx.line_to(x1, y1)
-        ctx.stroke() # Finish the segmented line
-    else:
-        ctx.stroke()  # Draw full line

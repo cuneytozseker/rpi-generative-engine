@@ -11,35 +11,30 @@ ctx = cairo.Context(surface)
 ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative code: Parametric lines with rotation
+# Concentric Circles with Systematic Offset
+center_x, center_y = width / 2, height / 2
+num_circles = 40
+max_radius = min(width, height) / 2 * 0.9  # leave some margin
+radius_step = max_radius / num_circles
+offset_factor = 0.05  # Controls the amount of offset
+random.seed(42)  # Fixed seed for reproducibility
 
-num_lines = 50
-line_length = 300
-x_center, y_center = width / 2, height / 2
-rotation_increment = 2 * math.pi / num_lines  # Full circle division
-offset_x = 50
-offset_y = 50
+for i in range(num_circles):
+    radius = radius_step * (i + 1)
+    angle_offset = offset_factor * radius  # Offset increases with radius
+    num_segments = 24 # Fixed number of segments to maintain consistency
 
-ctx.set_line_width(2)
+    for j in range(num_segments):
+      angle = 2 * math.pi * j / num_segments + angle_offset * (1 if i % 2 == 0 else -1) # Alternating direction
+      x = center_x + radius * math.cos(angle)
+      y = center_y + radius * math.sin(angle)
 
-for i in range(num_lines):
-    angle = i * rotation_increment
+      if j == 0:
+          ctx.move_to(x, y)
+      else:
+          ctx.line_to(x, y)
 
-    # Calculate start and end points of the line
-    x1 = x_center + offset_x + line_length * math.cos(angle)
-    y1 = y_center + offset_y + line_length * math.sin(angle)
-    x2 = x_center - offset_x - line_length * math.cos(angle)
-    y2 = y_center - offset_y - line_length * math.sin(angle)
-
-    # Set color based on line index
-    brightness = (i % 10) / 10 # Simple brightness variation
-    ctx.set_source_rgb(brightness, brightness, brightness)
-
-    # Draw the line
-    ctx.move_to(x1, y1)
-    ctx.line_to(x2, y2)
+    ctx.close_path() # Ensures the shape is closed
+    ctx.set_source_rgb(1, 1, 1)
+    ctx.set_line_width(1)
     ctx.stroke()
-
-    offset_x += 0.1
-    offset_y += 0.1
-
