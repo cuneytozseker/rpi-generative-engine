@@ -82,12 +82,12 @@ export default async function Gallery() {
                 key={`${art.date}-${art.period}`}
                 className="bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden hover:border-zinc-500 transition-all"
               >
-                <div className="relative aspect-square bg-zinc-950">
+                <div className="relative aspect-[5/4] bg-zinc-950">
                   <Image
                     src={`/gallery/${art.date}/period_${art.period}.png`}
                     alt={art.theme}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
 
