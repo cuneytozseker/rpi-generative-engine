@@ -8,49 +8,70 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # Black background
+ctx.set_source_rgb(0.95, 0.95, 0.95)
 ctx.paint()
 
-# --- Generative Code: Brutalist Rectangles ---
-ctx.set_source_rgb(1, 1, 1)  # White rectangles
+# Brutalist Composition with Rectangles
+ctx.set_source_rgb(0, 0, 0)  # Black
 
-# Grid parameters
-grid_x = 10
-grid_y = 10
-cell_width = width / grid_x
-cell_height = height / grid_y
+# Define grid parameters
+grid_size = 40
+num_cols = width // grid_size
+num_rows = height // grid_size
+rect_density = 0.7  # Probability of a rectangle appearing in a grid cell
 
-# Randomness parameters
-max_offset_x = cell_width * 0.2
-max_offset_y = cell_height * 0.2
-min_rect_size = 0.3
-max_rect_size = 0.8
+# Iterate over the grid
+for row in range(num_rows):
+    for col in range(num_cols):
+        # Calculate cell coordinates
+        x = col * grid_size
+        y = row * grid_size
 
-# Loop through grid
-for i in range(grid_x):
-    for j in range(grid_y):
-        # Calculate cell center
-        center_x = i * cell_width + cell_width / 2
-        center_y = j * cell_height + cell_height / 2
+        # Randomly determine if a rectangle should be drawn in this cell
+        if random.random() < rect_density:
+            # Randomly determine rectangle dimensions (with constraints)
+            rect_width = random.randint(grid_size // 4, grid_size)
+            rect_height = random.randint(grid_size // 4, grid_size)
 
-        # Random offset
-        offset_x = random.uniform(-max_offset_x, max_offset_x)
-        offset_y = random.uniform(-max_offset_y, max_offset_y)
+            # Adjust position to keep the rectangle within the grid cell
+            rect_x = x + random.randint(0, grid_size - rect_width) if (grid_size - rect_width) > 0 else x
+            rect_y = y + random.randint(0, grid_size - rect_height) if (grid_size - rect_height) > 0 else y
 
-        # Random rectangle size (relative to cell)
-        rect_width = cell_width * random.uniform(min_rect_size, max_rect_size)
-        rect_height = cell_height * random.uniform(min_rect_size, max_rect_size)
-
-        # Calculate rectangle top-left corner
-        rect_x = center_x - rect_width / 2 + offset_x
-        rect_y = center_y - rect_height / 2 + offset_y
-
-        # Draw rectangle
-        ctx.rectangle(rect_x, rect_y, rect_width, rect_height)
-
-        # Randomly fill or stroke (brutalist variation)
-        if random.random() < 0.7: # 70% fill, 30% stroke
+            # Draw the rectangle
+            ctx.rectangle(rect_x, rect_y, rect_width, rect_height)
             ctx.fill()
-        else:
-            ctx.set_line_width(random.uniform(2, 6))
+
+# Introduce larger, dominant rectangles
+num_dominant = 3
+for _ in range(num_dominant):
+    dom_width = random.randint(width // 4, width // 2)
+    dom_height = random.randint(height // 4, height // 2)
+    dom_x = random.randint(0, width - dom_width)
+    dom_y = random.randint(0, height - dom_height)
+    ctx.rectangle(dom_x, dom_y, dom_width, dom_height)
+    ctx.fill()
+
+# Add white outlines to some rectangles for contrast
+ctx.set_source_rgb(0.95, 0.95, 0.95)
+ctx.set_line_width(2)
+outline_density = 0.1
+
+for row in range(num_rows):
+    for col in range(num_cols):
+        # Calculate cell coordinates
+        x = col * grid_size
+        y = row * grid_size
+
+        # Randomly determine if a rectangle should be drawn in this cell
+        if random.random() < rect_density * outline_density:
+            # Randomly determine rectangle dimensions (with constraints)
+            rect_width = random.randint(grid_size // 4, grid_size)
+            rect_height = random.randint(grid_size // 4, grid_size)
+
+            # Adjust position to keep the rectangle within the grid cell
+            rect_x = x + random.randint(0, grid_size - rect_width) if (grid_size - rect_width) > 0 else x
+            rect_y = y + random.randint(0, grid_size - rect_height) if (grid_size - rect_height) > 0 else y
+
+            # Draw the rectangle
+            ctx.rectangle(rect_x, rect_y, rect_width, rect_height)
             ctx.stroke()

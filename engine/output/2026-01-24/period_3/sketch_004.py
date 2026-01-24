@@ -8,36 +8,30 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)  # Black background
+ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative Code: Wave Interference
-
+# Wave interference pattern
 num_waves = 20
 amplitude = 50
-wavelength_range = (50, 150)
-phase_shift_increment = 0.1
-line_width = 2
+wavelength = 80
+phase_shift_x = 0  # Varying phase shift for interesting effects
+phase_shift_y = 0
+wave_speed_x = 0.1  # Speed of wave movement
+wave_speed_y = 0.1
 
-ctx.set_line_width(line_width)
+ctx.set_line_width(2)
 
 for i in range(num_waves):
-    wavelength = random.uniform(wavelength_range[0], wavelength_range[1])
-    phase_shift = i * phase_shift_increment
     ctx.set_source_rgb(1, 1, 1)  # White lines
+    ctx.move_to(0, height / num_waves * i)
 
     for x in range(width):
-        y = height / 2 + amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift)
-        if x == 0:
-            ctx.move_to(x, y)
-        else:
-            ctx.line_to(x, y)
+        y1 = amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift_x + i * wave_speed_x) + height / num_waves * i
+        y2 = amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift_y + i * wave_speed_y) + height / num_waves * i
+
+        # Average the two waves to create interference
+        y = (y1 + y2) / 2
+        ctx.line_to(x, y)
 
     ctx.stroke()
-
-    # Shift the center to create a displacement effect
-    vertical_shift = i * 5  # Control the amount of displacement
-    ctx.translate(0, vertical_shift)  # Apply the shift temporarily
-
-    # reset to original position
-    ctx.translate(0, -vertical_shift)
