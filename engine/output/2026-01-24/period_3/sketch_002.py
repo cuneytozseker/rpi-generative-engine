@@ -8,28 +8,30 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0, 0, 0)  # Black background
 ctx.paint()
 
-# Generative Code
-num_lines = 100
-line_length = 200
-x_center = width / 2
-y_center = height / 2
-angle_increment = 2 * math.pi / num_lines
+# Generative Code: Parametric Line Pattern with Rotation
 
-ctx.set_line_width(2)
+num_lines = 50
+line_length = 200
+center_x, center_y = width / 2, height / 2
+rotation_increment = 2 * math.pi / num_lines  # Full circle divided by num_lines
+offset_increment = 5
+
+ctx.set_line_width(1)
+ctx.set_source_rgb(1, 1, 1) # White lines
 
 for i in range(num_lines):
-    angle = i * angle_increment
-    x1 = x_center + line_length * math.cos(angle)
-    y1 = y_center + line_length * math.sin(angle)
-    x2 = x_center - line_length * math.cos(angle)
-    y2 = y_center - line_length * math.sin(angle)
+    angle = i * rotation_increment
+    offset_x = math.cos(angle) * offset_increment * i
+    offset_y = math.sin(angle) * offset_increment * i
 
-    # Vary color based on line index
-    color_value = (i % 50) / 50  # Cycle through greyscale
-    ctx.set_source_rgb(color_value, color_value, color_value)
+    x1 = center_x + offset_x
+    y1 = center_y + offset_y
+
+    x2 = x1 + line_length * math.cos(angle)
+    y2 = y1 + line_length * math.sin(angle)
 
     ctx.move_to(x1, y1)
     ctx.line_to(x2, y2)

@@ -8,52 +8,50 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0.95, 0.95, 0.95)  # Light grey background
+ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
+# --- Modular Typography System ---
+
 # Grid parameters
-grid_size = 80
-grid_rows = height // grid_size
-grid_cols = width // grid_size
+grid_size = 40
+x_count = width // grid_size
+y_count = height // grid_size
 
-# Color palette
-black = (0.1, 0.1, 0.1)
-red = (0.8, 0.2, 0.2)
-blue = (0.2, 0.4, 0.8)
-colors = [black, red, blue]  # Limited palette
+# Define basic module shapes (lines, rectangles)
+def draw_module(ctx, x, y, module_type):
+    ctx.set_line_width(2)
+    ctx.set_source_rgb(1, 1, 1)  # White lines
 
-# Modular letter components
-def draw_module(ctx, x, y, size, module_type):
-    ctx.set_line_width(size / 8)
-    ctx.set_source_rgb(*random.choice(colors))
-
-    if module_type == 0:  # Vertical line
-        ctx.move_to(x + size / 2, y)
-        ctx.line_to(x + size / 2, y + size)
+    if module_type == 0:  # Horizontal line
+        ctx.move_to(x, y + grid_size / 2)
+        ctx.line_to(x + grid_size, y + grid_size / 2)
         ctx.stroke()
-    elif module_type == 1:  # Horizontal line
-        ctx.move_to(x, y + size / 2)
-        ctx.line_to(x + size, y + size / 2)
+    elif module_type == 1:  # Vertical line
+        ctx.move_to(x + grid_size / 2, y)
+        ctx.line_to(x + grid_size / 2, y + grid_size)
         ctx.stroke()
     elif module_type == 2:  # Diagonal line (top-left to bottom-right)
         ctx.move_to(x, y)
-        ctx.line_to(x + size, y + size)
+        ctx.line_to(x + grid_size, y + grid_size)
         ctx.stroke()
-    elif module_type == 3: # Diagonal line (top-right to bottom-left)
-        ctx.move_to(x + size, y)
-        ctx.line_to(x, y + size)
+    elif module_type == 3:  # Diagonal line (top-right to bottom-left)
+        ctx.move_to(x + grid_size, y)
+        ctx.line_to(x, y + grid_size)
         ctx.stroke()
-    elif module_type == 4: # Circle segment (top left)
-        ctx.arc(x + size/2, y + size/2, size/2, math.pi, 1.5*math.pi)
-        ctx.stroke()
-    elif module_type == 5: # Rectangle
-         ctx.rectangle(x + size/4, y + size/4, size/2, size/2)
-         ctx.fill()
+    elif module_type == 4:  # Small rectangle
+        rect_size = grid_size / 3
+        ctx.rectangle(x + grid_size / 3, y + grid_size / 3, rect_size, rect_size)
+        ctx.fill()
+    else: # Empty module
+        pass
 
-# Generate the "type"
-for row in range(grid_rows):
-    for col in range(grid_cols):
-        x = col * grid_size
-        y = row * grid_size
-        module_type = random.randint(0, 5)  # Random module
-        draw_module(ctx, x, y, grid_size, module_type)
+# "Typeface" definition (example: 'A', 'B', etc. using module patterns)
+# Here, we're creating a systematic, randomized pattern
+
+for i in range(x_count):
+    for j in range(y_count):
+        x = i * grid_size
+        y = j * grid_size
+        module_type = random.randint(0, 5) # Generate random module type
+        draw_module(ctx, x, y, module_type)

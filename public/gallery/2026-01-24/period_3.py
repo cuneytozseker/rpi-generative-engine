@@ -11,29 +11,23 @@ ctx = cairo.Context(surface)
 ctx.set_source_rgb(0, 0, 0)
 ctx.paint()
 
-# Generative Code: Wave Interference
+# Concentric Circles with Systematic Offset
+center_x, center_y = width / 2, height / 2
+num_circles = 30
+max_radius = min(width, height) / 2 * 0.9  # 90% of the possible radius
+radius_increment = max_radius / num_circles
+offset_angle_increment = 2 * math.pi / num_circles  # Full circle divided equally
 
-num_waves = 15
-amplitude = 50
-wavelength = 100
-phase_shift_increment = 0.2
-line_width = 2
+for i in range(num_circles):
+    radius = radius_increment * (i + 1)
+    offset_angle = offset_angle_increment * i
 
-ctx.set_line_width(line_width)
-ctx.set_source_rgb(1, 1, 1)
+    x = center_x + radius * math.cos(offset_angle) - center_x
+    y = center_y + radius * math.sin(offset_angle) - center_y
 
-for i in range(num_waves):
-    phase_shift = i * phase_shift_increment
-    for x in range(0, width):
-        y = height / 2 + amplitude * math.sin(2 * math.pi * x / wavelength + phase_shift)
-        if x == 0:
-            ctx.move_to(x, y)
-        else:
-            ctx.line_to(x, y)
+    ctx.arc(center_x, center_y, radius, 0, 2 * math.pi)
+
+    gray_value = (i / num_circles) * 0.7 + 0.3 # Gray values from 0.3 to 1.0
+    ctx.set_source_rgb(gray_value, gray_value, gray_value)
+    ctx.set_line_width(2)
     ctx.stroke()
-
-    # Invert color for every other wave for higher contrast
-    if i % 2 == 0:
-        ctx.set_source_rgb(1, 1, 1)
-    else:
-         ctx.set_source_rgb(0, 0, 0) # or another contrasting color

@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 from config.settings import GEMINI_API_KEY
 import re
 import asyncio
@@ -45,8 +45,8 @@ Be creative but maintain systematic thinking. Each sketch should explore a uniqu
 
 class GeneratorAgent:
     def __init__(self):
-        genai.configure(api_key=GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.client = genai.Client(api_key=GEMINI_API_KEY)
+        self.model_id = 'gemini-2.0-flash-exp'
     
     async def generate_batch(self, n: int, themes: list[str] = None):
         """Generate n sketches"""
@@ -71,9 +71,12 @@ class GeneratorAgent:
             prompt = f"{SYSTEM_PROMPT}\n\nCreate: {theme}\nMake it visually striking and systematic."
             
             try:
-                response = await self.model.generate_content_async(
-                    prompt,
-                    generation_config={'temperature': 1.0}
+                # The new SDK uses a synchronous-looking call that can be used in async environments
+                # or we can wrap it if needed. For gemini-2.0-flash, simple call works.
+                response = self.client.models.generate_content(
+                    model=self.model_id,
+                    contents=prompt,
+                    config={'temperature': 1.0}
                 )
                 
                 code = self._extract_code(response.text)
