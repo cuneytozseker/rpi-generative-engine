@@ -11,15 +11,19 @@ from agents.generator import GeneratorAgent
 from agents.curator import CuratorAgent
 from agents.executor import SafeExecutor
 from agents.display_manager import DisplayManager
+from agents.status_publisher import StatusPublisher
 from upload import GalleryUploader
-from config.settings import OUTPUT_DIR, SKETCHES_PER_PERIOD
+from config.settings import OUTPUT_DIR, SKETCHES_PER_PERIOD, VERCEL_BLOB_TOKEN
 
 async def run_period():
     """Execute one generation period"""
-    
+
     timestamp = datetime.now()
     period_num = (timestamp.hour // 6) + 1
     
+    # Initialize status publisher
+    status = StatusPublisher(VERCEL_BLOB_TOKEN)
+
     # Setup output directory
     output_dir = OUTPUT_DIR / str(timestamp.date()) / f"period_{period_num}"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -29,17 +33,20 @@ async def run_period():
     print(f"{ '='*60}\n")
     
     # 1. Generate sketches
+    await status.update('Generator', 'Generating sketches', f'0/{SKETCHES_PER_PERIOD}')
     print(f"Generating {SKETCHES_PER_PERIOD} sketches...")
     generator = GeneratorAgent()
     sketches = await generator.generate_batch(SKETCHES_PER_PERIOD)
     print(f"✓ Generated {len(sketches)} sketches\n")
     
     # 2. Execute and render
+    await status.update('Executor', 'Rendering sketches', f'0/{len(sketches)}')
     print("Rendering sketches...")
     executor = SafeExecutor()
     rendered = []
     
-    for sketch in sketches:
+    for idx, sketch in enumerate(sketches):
+        await status.update('Executor', 'Rendering sketches', f'{idx+1}/{len(sketches)}')
         output_path = output_dir / f"{sketch['id']}.png"
         success, msg = executor.execute(sketch['code'], output_path)
         
@@ -58,10 +65,12 @@ async def run_period():
     print(f"\n✓ Successfully rendered {len(rendered)}/{len(sketches)} sketches\n")
     
     if not rendered:
+        await status.update('Idle', 'No sketches rendered', 'Waiting for next cycle')
         print("❌ No sketches rendered successfully. Exiting.")
         return
     
     # 3. Curate best
+    await status.update('Curator', 'Evaluating with Claude Sonnet')
     print("Evaluating with Claude Sonnet...")
     curator = CuratorAgent()
     best = await curator.select_best(rendered)
@@ -70,6 +79,7 @@ async def run_period():
     print(f"   Score: {best.get('score', 'N/A')}/10\n")
     
     # 4. Update display
+    await status.update('Display', 'Updating TFT screen')
     print("Updating TFT display...")
     display = DisplayManager()
     display.show_artwork(
@@ -84,6 +94,7 @@ async def run_period():
     print("✓ Display updated\n")
     
     # 5. Upload/Git Push
+    await status.update('Uploader', 'Pushing to GitHub gallery')
     print("Pushing to GitHub gallery...")
     uploader = GalleryUploader()
     msg = await uploader.post(
@@ -103,6 +114,9 @@ async def run_period():
     curator.update_taste(best)
     print("✓ Taste profile updated\n")
     
+    # 7. Set status to idle
+    await status.update('Idle', 'Waiting for next cycle')
+
     print(f"{ '='*60}")
     print(f"✅ Period {period_num} complete!")
     print(f"{ '='*60}\n")

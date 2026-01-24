@@ -8,6 +8,7 @@ load_dotenv(Path(__file__).parent / '.env')
 # API Keys
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+VERCEL_BLOB_TOKEN = os.getenv('VERCEL_BLOB_TOKEN')
 
 # Paths
 ENGINE_ROOT = Path(__file__).parent.parent
