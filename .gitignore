@@ -1,2 +1,11 @@
 nul 
 gallery/nul 
+.env
+__pycache__/
+engine/output/
+engine/config/.env
+*.py[cod]
+*.class
+.pytest_cache/
+.venv/
+venv/
