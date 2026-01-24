@@ -16,71 +16,41 @@ grid_size = 20
 num_cols = width // grid_size
 num_rows = height // grid_size
 
-# Typography module parameters
-module_size = grid_size * 2  # Each module spans 2x2 grid cells
-stroke_width = 3
-
-# Function to draw a modular 'H'
-def draw_h(x, y):
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.set_line_width(stroke_width)
-
-    # Vertical lines
-    ctx.move_to(x + grid_size / 2, y + grid_size / 4)
-    ctx.line_to(x + grid_size / 2, y + module_size - grid_size / 4)
+# Module definitions (simple line-based)
+def module_a(ctx, x, y, size):
+    ctx.move_to(x, y)
+    ctx.line_to(x + size, y + size)
     ctx.stroke()
 
-    ctx.move_to(x + module_size - grid_size / 2, y + grid_size / 4)
-    ctx.line_to(x + module_size - grid_size / 2, y + module_size - grid_size / 4)
+def module_b(ctx, x, y, size):
+    ctx.move_to(x + size, y)
+    ctx.line_to(x, y + size)
     ctx.stroke()
 
-    # Horizontal line
-    ctx.move_to(x + grid_size / 2, y + module_size / 2)
-    ctx.line_to(x + module_size - grid_size / 2, y + module_size / 2)
+def module_c(ctx, x, y, size):
+    ctx.move_to(x, y)
+    ctx.line_to(x + size, y)
     ctx.stroke()
 
-# Function to draw a modular 'O'
-def draw_o(x, y):
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.set_line_width(stroke_width)
-
-    ctx.arc(x + module_size / 2, y + module_size / 2, module_size / 2 - stroke_width / 2, 0, 2 * math.pi)
+def module_d(ctx, x, y, size):
+    ctx.move_to(x, y)
+    ctx.line_to(x, y + size)
     ctx.stroke()
 
-# Function to draw a modular 'I'
-def draw_i(x, y):
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.set_line_width(stroke_width)
+modules = [module_a, module_b, module_c, module_d]
 
-    ctx.move_to(x + module_size / 2, y + grid_size / 4)
-    ctx.line_to(x + module_size / 2, y + module_size - grid_size / 4)
-    ctx.stroke()
+# Color definitions
+white = (1, 1, 1)
 
-# Function to draw a modular '!'
-def draw_exclamation(x,y):
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.set_line_width(stroke_width)
+# Drawing loop
+ctx.set_source_rgb(*white)
+ctx.set_line_width(2)
 
-    ctx.move_to(x + module_size / 2, y + grid_size / 4)
-    ctx.line_to(x + module_size / 2, y + module_size / 2)
-    ctx.stroke()
-
-    ctx.arc(x + module_size / 2, y + module_size - grid_size / 4, 2, 0, 2 * math.pi)
-    ctx.fill()
-
-# Draw modules in a grid
-for row in range(0, num_rows - 1, 2):  # Step by 2 to account for module size
-    for col in range(0, num_cols - 1, 2):
+for row in range(num_rows):
+    for col in range(num_cols):
         x = col * grid_size
         y = row * grid_size
 
-        # Randomly choose which module to draw
-        choice = random.choice(['h', 'o', 'i', '!'])
-        if choice == 'h':
-            draw_h(x, y)
-        elif choice == 'o':
-            draw_o(x, y)
-        elif choice == 'i':
-            draw_i(x, y)
-        else:
-            draw_exclamation(x, y)
+        # Randomly choose a module to draw
+        module = random.choice(modules)
+        module(ctx, x, y, grid_size)

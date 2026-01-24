@@ -13,7 +13,7 @@ ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 ENGINE_ROOT = Path(__file__).parent.parent
 PROJECT_ROOT = ENGINE_ROOT.parent
 OUTPUT_DIR = ENGINE_ROOT / 'output'
-GALLERY_DIR = PROJECT_ROOT / 'public' / 'gallery'
+GALLERY_DIR = PROJECT_ROOT / 'gallery' / 'public' / 'gallery'
 TEMP_DIR = Path('/tmp/generative_studio')
 TEMP_DIR.mkdir(exist_ok=True)
 

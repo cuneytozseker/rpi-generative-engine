@@ -8,47 +8,36 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0, 0, 0)  # or your choice
 ctx.paint()
 
-# Generative code: Radial Symmetry with Breaking Points
+# Generative code: Radial symmetry with breaking points
 
 center_x, center_y = width / 2, height / 2
-num_segments = 12  # Number of symmetrical segments
-radius = 350
-line_width = 3
-ctx.set_line_width(line_width)
+num_segments = 16  # Number of radial segments
+radius = min(width, height) / 2 * 0.9
+segment_angle = 2 * math.pi / num_segments
 
-def draw_segment(angle_start, angle_end, offset):
-    # Calculate start and end points of the segment
-    x1 = center_x + radius * math.cos(angle_start + offset)
-    y1 = center_y + radius * math.sin(angle_start + offset)
-    x2 = center_x + radius * math.cos(angle_end + offset)
-    y2 = center_y + radius * math.sin(angle_end + offset)
-
-    # Draw a line segment
-    ctx.move_to(x1, y1)
-    ctx.line_to(x2, y2)
-    ctx.stroke()
-
-ctx.set_source_rgb(1, 1, 1)
-
-angle_increment = 2 * math.pi / num_segments
+ctx.set_line_width(2)
 
 for i in range(num_segments):
-    angle_start = i * angle_increment
-    angle_end = (i + 1) * angle_increment
+    angle = i * segment_angle
 
-    # Introduce variation: Random offset to create breaking points
-    offset = random.uniform(-angle_increment/4, angle_increment/4)
+    # Calculate start and end points for the line segment
+    start_x = center_x + radius * math.cos(angle)
+    start_y = center_y + radius * math.sin(angle)
+    end_x = center_x
+    end_y = center_y
 
-    draw_segment(angle_start, angle_end, offset)
-
-    # Add small inner circles with some probability
-    if random.random() < 0.3:
-        inner_radius = radius * 0.3
-        circle_x = center_x + inner_radius * math.cos(angle_start + angle_increment/2 + offset)
-        circle_y = center_y + inner_radius * math.sin(angle_start + angle_increment/2 + offset)
-
-        ctx.arc(circle_x, circle_y, 5, 0, 2 * math.pi)
+    # Decide whether to draw the line segment or "break" it
+    if random.random() < 0.8: # Probability of drawing a line
+        ctx.set_source_rgb(1, 1, 1)  # White
+        ctx.move_to(start_x, start_y)
+        ctx.line_to(end_x, end_y)
+        ctx.stroke()
+    else:
+         # Draw a small circle as a breaking point
+        break_radius = 5
+        ctx.set_source_rgb(1, 0, 0) # Red to emphasize break
+        ctx.arc(start_x, start_y, break_radius, 0, 2 * math.pi)
         ctx.fill()

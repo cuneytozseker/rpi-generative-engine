@@ -8,74 +8,66 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0.95, 0.95, 0.95)  # Light gray background
+ctx.set_source_rgb(0, 0, 0)  # or your choice
 ctx.paint()
 
-# Grid parameters
-grid_size = 40
-rows = width // grid_size
-cols = height // grid_size
+# Swiss Grid with Bold Geometric Shapes
 
-# Color palette
-black = (0, 0, 0)
-red = (0.8, 0.2, 0.2)
-blue = (0.2, 0.2, 0.8)
+grid_size = 8  # Adjust for finer/coarser grid
+cell_width = width / grid_size
+cell_height = height / grid_size
 
-# Function to draw a random shape in a grid cell
-def draw_shape(x, y):
-    shape_type = random.choice(['rectangle', 'circle', 'triangle'])
-    ctx.set_line_width(2)
+ctx.set_line_width(2) # Line thickness
+for row in range(grid_size):
+    for col in range(grid_size):
+        x = col * cell_width
+        y = row * cell_height
 
-    if shape_type == 'rectangle':
-        w = random.uniform(grid_size * 0.2, grid_size * 0.8)
-        h = random.uniform(grid_size * 0.2, grid_size * 0.8)
-        rx = x + (grid_size - w) / 2
-        ry = y + (grid_size - h) / 2
-        if random.random() < 0.6:
-            ctx.set_source_rgb(*black)
-            ctx.rectangle(rx, ry, w, h)
-            ctx.fill()
-        else:
-            ctx.set_source_rgb(*black)
-            ctx.rectangle(rx, ry, w, h)
-            ctx.stroke()
+        # Random chance to draw a shape in the cell
+        if random.random() < 0.7:  # Adjust probability
+            shape_type = random.randint(0, 3) # 0: rectangle, 1: circle, 2: triangle, 3: diagonal line
 
-    elif shape_type == 'circle':
-        radius = random.uniform(grid_size * 0.1, grid_size * 0.4)
-        cx = x + grid_size / 2
-        cy = y + grid_size / 2
-        if random.random() < 0.6:
-            ctx.set_source_rgb(*red)
-            ctx.arc(cx, cy, radius, 0, 2 * math.pi)
-            ctx.fill()
-        else:
-            ctx.set_source_rgb(*red)
-            ctx.arc(cx, cy, radius, 0, 2 * math.pi)
-            ctx.stroke()
+            if shape_type == 0: # Rectangle
+                rect_width = random.uniform(cell_width * 0.2, cell_width * 0.9)
+                rect_height = random.uniform(cell_height * 0.2, cell_height * 0.9)
+                rect_x = x + (cell_width - rect_width) / 2
+                rect_y = y + (cell_height - rect_height) / 2
+                ctx.set_source_rgb(1, 1, 1) # White
+                ctx.rectangle(rect_x, rect_y, rect_width, rect_height)
+                if random.random() < 0.5:
+                    ctx.fill()
+                else:
+                    ctx.stroke()
+            elif shape_type == 1: # Circle
+                radius = random.uniform(min(cell_width, cell_height) * 0.1, min(cell_width, cell_height) * 0.4)
+                ctx.set_source_rgb(1, 1, 1)
+                ctx.arc(x + cell_width / 2, y + cell_height / 2, radius, 0, 2 * math.pi)
+                if random.random() < 0.5:
+                    ctx.fill()
+                else:
+                    ctx.stroke()
+            elif shape_type == 2: # Triangle
+                x1 = x + cell_width / 2
+                y1 = y + cell_height * 0.1
+                x2 = x + cell_width * 0.1
+                y2 = y + cell_height * 0.9
+                x3 = x + cell_width * 0.9
+                y3 = y + cell_height * 0.9
 
-    elif shape_type == 'triangle':
-        s = random.uniform(grid_size * 0.3, grid_size * 0.7)
-        x1 = x + grid_size / 2
-        y1 = y + (grid_size - s * math.sqrt(3)/2) / 2
-        x2 = x + (grid_size - s) / 2
-        y2 = y + (grid_size + s * math.sqrt(3)/2) / 2
-        x3 = x + (grid_size + s) / 2
-        y3 = y + (grid_size + s * math.sqrt(3)/2) / 2
-        ctx.move_to(x1, y1)
-        ctx.line_to(x2, y2)
-        ctx.line_to(x3, y3)
-        ctx.close_path()
-        if random.random() < 0.6:
-            ctx.set_source_rgb(*blue)
-            ctx.fill()
-        else:
-            ctx.set_source_rgb(*blue)
-            ctx.stroke()
+                ctx.move_to(x1, y1)
+                ctx.line_to(x2, y2)
+                ctx.line_to(x3, y3)
+                ctx.close_path()
+                ctx.set_source_rgb(1, 1, 1)
+                if random.random() < 0.5:
+                    ctx.fill()
+                else:
+                    ctx.stroke()
+            elif shape_type == 3: # Diagonal Line
+                line_width = random.uniform(1, 5)
+                ctx.set_line_width(line_width)
+                ctx.move_to(x, y)
+                ctx.line_to(x + cell_width, y + cell_height)
+                ctx.set_source_rgb(1, 1, 1)
+                ctx.stroke()
 
-# Iterate through the grid
-for i in range(rows):
-    for j in range(cols):
-        x = i * grid_size
-        y = j * grid_size
-        if random.random() < 0.7:  # Probability of drawing a shape in a cell
-            draw_shape(x, y)

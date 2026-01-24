@@ -8,33 +8,24 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0, 0, 0)  # or your choice
 ctx.paint()
 
-# Concentric Circles with Systematic Offset
+# Concentric circles with systematic offset
 center_x, center_y = width / 2, height / 2
-num_circles = 40
-max_radius = min(width, height) / 2 * 0.9  # leave some margin
-radius_step = max_radius / num_circles
-offset_factor = 0.05  # Controls the amount of offset
-random.seed(42)  # Fixed seed for reproducibility
+num_circles = 20
+max_radius = min(width, height) / 2 * 0.9  # Limit radius to fit within bounds
+radius_increment = max_radius / num_circles
+offset_increment = 5  # Adjust for visual effect
 
 for i in range(num_circles):
-    radius = radius_step * (i + 1)
-    angle_offset = offset_factor * radius  # Offset increases with radius
-    num_segments = 24 # Fixed number of segments to maintain consistency
+    radius = radius_increment * (i + 1)
+    offset_angle = math.radians(offset_increment * i) # Convert to radians
 
-    for j in range(num_segments):
-      angle = 2 * math.pi * j / num_segments + angle_offset * (1 if i % 2 == 0 else -1) # Alternating direction
-      x = center_x + radius * math.cos(angle)
-      y = center_y + radius * math.sin(angle)
+    x = center_x + math.cos(offset_angle) * (i*1.5) # Introduce x offset
+    y = center_y + math.sin(offset_angle) * (i*1.5) # Introduce y offset
 
-      if j == 0:
-          ctx.move_to(x, y)
-      else:
-          ctx.line_to(x, y)
-
-    ctx.close_path() # Ensures the shape is closed
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.set_line_width(1)
+    ctx.set_source_rgb(1, 1, 1) # White
+    ctx.set_line_width(2)
+    ctx.arc(x, y, radius, 0, 2 * math.pi)
     ctx.stroke()

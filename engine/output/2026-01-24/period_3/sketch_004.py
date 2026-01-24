@@ -8,32 +8,42 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 ctx = cairo.Context(surface)
 
 # Background
-ctx.set_source_rgb(0, 0, 0)
+ctx.set_source_rgb(0, 0, 0)  # or your choice
 ctx.paint()
 
-# Wave Interference
+# Generative Code: Wave Interference
 
-amplitude = 50
-frequency1 = 0.02
-frequency2 = 0.025
-phase_shift = math.pi / 4
-line_width = 2
+def draw_wave(ctx, x_offset, y_offset, amplitude, frequency, phase, color):
+    ctx.set_source_rgb(*color)
+    ctx.set_line_width(2)
+    ctx.move_to(0, y_offset + amplitude * math.sin(frequency * 0 + phase))
 
-ctx.set_line_width(line_width)
-ctx.set_source_rgb(1, 1, 1) # White
-
-for y in range(0, height, 10):
-    ctx.move_to(0, y)
     for x in range(width):
-        # Wave 1
-        y1 = amplitude * math.sin(frequency1 * x)
-
-        # Wave 2 (with a phase shift)
-        y2 = amplitude * math.sin(frequency2 * x + phase_shift)
-
-        # Combined wave (interference)
-        y_combined = y1 + y2
-
-        ctx.line_to(x, y + y_combined)
+        y = y_offset + amplitude * math.sin(frequency * x + phase)
+        ctx.line_to(x, y)
 
     ctx.stroke()
+
+
+num_waves = 10
+amplitude = 30
+frequency_base = 0.01
+phase_increment = math.pi / 4
+y_spacing = height / (num_waves + 1)
+
+for i in range(num_waves):
+    y_offset = (i + 1) * y_spacing
+    frequency = frequency_base + i * 0.002  # Vary frequency slightly
+    phase = i * phase_increment
+    color = (1, 1, 1)  # White
+    draw_wave(ctx, 0, y_offset, amplitude, frequency, phase, color)
+
+# Second wave set, inverted
+
+for i in range(num_waves):
+    y_offset = (i + 1) * y_spacing
+    frequency = frequency_base + i * 0.002 # Vary frequency slightly
+    phase = i * phase_increment
+    color = (0, 0, 0) # Black
+    draw_wave(ctx, 0, y_offset, amplitude, frequency, -phase, color) # Invert the phase
+
