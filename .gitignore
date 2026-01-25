@@ -9,3 +9,4 @@ engine/config/.env
 .pytest_cache/
 .venv/
 venv/
+engine/taste_profile.md
