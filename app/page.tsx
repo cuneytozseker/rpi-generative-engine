@@ -56,7 +56,7 @@ export default async function Gallery() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-12">
-          <h1 className="text-5xl font-bold mb-4">Generative Art Engine</h1>
+          <h1 className="text-5xl font-bold mb-4">Generative Engine</h1>
           <p className="text-zinc-400 text-lg">
             Autonomous artwork generated every 6 hours by AI agents
           </p>
