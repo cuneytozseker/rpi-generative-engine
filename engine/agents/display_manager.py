@@ -102,12 +102,6 @@ class DisplayManager:
         return lines
 
     def _update_display(self):
-        """Show image on TFT using fbi (framebuffer)"""
-        # -d /dev/fb0: use the first framebuffer
-        # -T 1: use the first virtual console
-        # -noverbose: hide status bar
-        # -a: autozoom
-        # --noverbose is not always supported, use -q for quiet
-        subprocess.run([
-            f"sudo fbi -d /dev/fb0 -T 1 -noverbose -a {self.display_image}"
-        ], shell=True)
+        """Update the persistent display service"""
+        # We just need to restart the service so it picks up the new /tmp/current_display.png
+        subprocess.run(["sudo systemctl restart art-display.service"], shell=True)

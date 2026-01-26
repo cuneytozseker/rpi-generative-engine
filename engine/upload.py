@@ -38,7 +38,7 @@ class GalleryUploader:
         latest_img = dest_dir / f"period_{period}.png"
         latest_code = dest_dir / f"period_{period}.py"
         latest_json = dest_dir / f"period_{period}.json"
-        
+
         shutil.copy(image, latest_img)
         latest_code.write_text(code)
 
@@ -49,7 +49,7 @@ class GalleryUploader:
             "timestamp": datetime.now().isoformat()
         }
         json_content = json.dumps(metadata_with_ts, indent=2)
-        
+
         # Save to both locations
         json_archive.write_text(json_content)
         latest_json.write_text(json_content)
@@ -62,19 +62,26 @@ class GalleryUploader:
                 if (repo_root / '.git').exists():
                     break
                 repo_root = repo_root.parent
+
+            # Stash any local changes (like __pycache__ or settings changes)
+            subprocess.run(["git", "stash"], cwd=str(repo_root), check=True)
             
-            # Ensure we pull first
-            subprocess.run(["git", "pull", "--rebase"], cwd=str(repo_root), check=True)
+            try:
+                # Ensure we pull first
+                subprocess.run(["git", "pull", "--rebase"], cwd=str(repo_root), check=True)
 
-            # Add files
-            subprocess.run(["git", "add", "."], cwd=str(repo_root), check=True)
+                # Add files
+                subprocess.run(["git", "add", "."], cwd=str(repo_root), check=True)
 
-            # Commit
-            commit_msg = f"Gallery Update: {date_str} Period {period}"
-            subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(repo_root), check=True)
+                # Commit
+                commit_msg = f"Gallery Update: {date_str} Period {period}"
+                subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(repo_root), check=True)
 
-            # Push
-            subprocess.run(["git", "push"], cwd=str(repo_root), check=True)
+                # Push
+                subprocess.run(["git", "push"], cwd=str(repo_root), check=True)
+            finally:
+                # Always try to pop the stash even if push fails
+                subprocess.run(["git", "stash", "pop"], cwd=str(repo_root))
 
             return f"Successfully pushed to GitHub: Period {period}"
         except Exception as e:
