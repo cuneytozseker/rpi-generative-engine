@@ -4,9 +4,9 @@ import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'Generative Art Engine',
-  description: 'Autonomous AI-generated artwork every 6 hours',
+export const metadata = {
+  title: 'Generative Engine',
+  description: 'Autonomous generative art engine running on Raspberry Pi',
 }
 
 export default function RootLayout({
