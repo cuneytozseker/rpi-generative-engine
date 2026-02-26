@@ -17,7 +17,7 @@ export default function StatusBanner() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await fetch('https://iXd015wZzy3Iv6mg.public.blob.vercel-storage.com/status.json', {
+        const res = await fetch(process.env.NEXT_PUBLIC_STATUS_URL!, {
           cache: 'no-store'
         });
         

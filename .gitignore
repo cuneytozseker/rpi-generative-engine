@@ -1,6 +1,5 @@
-nul 
-gallery/nul 
 .env
+.claude/
 __pycache__/
 engine/output/
 engine/config/.env
